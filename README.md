@@ -17,7 +17,7 @@ items := [8]string{"parrot", "tree", "lion", "forest", "rain", "tomato", "potato
 cache := NewCache()
 
 for _, word := range items {
-	cache.Check(word) //check if the value already exists in the queue or not
+	cache.Check(word) // Check if the value already exists in the queue or not
 	cache.Display()
-	 }
+}
 ```
