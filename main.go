@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"os"
+	"strings"
 )
 
 const SIZE = 5
@@ -104,10 +107,28 @@ func (q *Queue) Display() {
 
 func main() {
 	fmt.Println("Starting cache")
-	items := [8]string{"parrot", "tree", "lion", "forest", "rain", "tomato", "potato", "mushroom"}
+	// items := [8]string{"parrot", "tree", "lion", "forest", "rain", "tomato", "potato", "mushroom"}
 	cache := NewCache()
-	for _, word := range items {
-		cache.Check(word) //check if the value already exists in the queue or not
+
+	// for _, word := range items {
+	// 	cache.Check(word) //check if the value already exists in the queue or not
+	// 	cache.Display()
+	// }
+
+	scanner := bufio.NewScanner(os.Stdin)
+	fmt.Println("Enter strings (type 'exit' to stop):")
+
+	for scanner.Scan() {
+		input := strings.TrimSpace(scanner.Text())
+		if strings.ToLower(input) == "exit" {
+			break
+		}
+		// Process the input
+		cache.Check(input) // Check if the value already exists in the queue or not
 		cache.Display()
+	}
+
+	if err := scanner.Err(); err != nil {
+		fmt.Fprintln(os.Stderr, "Error reading input:", err)
 	}
 }
