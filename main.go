@@ -107,13 +107,7 @@ func (q *Queue) Display() {
 
 func main() {
 	fmt.Println("Starting cache")
-	// items := [8]string{"parrot", "tree", "lion", "forest", "rain", "tomato", "potato", "mushroom"}
 	cache := NewCache()
-
-	// for _, word := range items {
-	// 	cache.Check(word) //check if the value already exists in the queue or not
-	// 	cache.Display()
-	// }
 
 	scanner := bufio.NewScanner(os.Stdin)
 	fmt.Println("Enter strings (type 'exit' to stop):")
