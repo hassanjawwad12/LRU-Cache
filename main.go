@@ -70,9 +70,12 @@ func (c *Cache) Check(str string) {
 func (c *Cache) Remove(n *Node) *Node {
 	// The item is removed from the queue by updating the pointers of its neighboring nodes.
 	fmt.Printf("The value removed is %s\n", n.Value)
+
+	//getting the node neighbors
 	left := n.Left
 	right := n.Right
 
+	//bypassed the node to be removed
 	left.Right = right
 	right.Left = left
 
@@ -88,10 +91,10 @@ func (c *Cache) Add(n *Node) *Node {
 
 	tmp := c.Queue.Head.Right
 
-	c.Queue.Head.Right = n // new item is added at head
-	n.Left = c.Queue.Head
-	n.Right = tmp
-	tmp.Left = n
+	c.Queue.Head.Right = n // Point head's next to the new node
+	n.Left = c.Queue.Head  // Point new node's left to head
+	n.Right = tmp          // Point new node's right to current first node
+	tmp.Left = n           // Update current first node's left to new node
 
 	c.Queue.Length++
 
