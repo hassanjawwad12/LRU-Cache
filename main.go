@@ -9,24 +9,33 @@ import (
 
 const SIZE = 5
 
+// Node and Queue initialization
+// Represents an item in the cache
 type Node struct {
-	Value string
-	Left  *Node
-	Right *Node
+	Value string // data stored in the node
+	Left  *Node  // pointer to prev node in queue
+	Right *Node  // pointer to next node in queue
 }
 
+// Represents doubly linked list
 type Queue struct {
-	Head   *Node
-	Tail   *Node
+	Head   *Node // dummy node at queue beginning
+	Tail   *Node // dummy node at queue end
 	Length int
 }
 
+// Cache initialization
+// Combines queue and hash to implement LRU cache
 type Cache struct {
-	Queue Queue
-	Hash  Hash
+	Queue Queue // Doubly linked list
+	Hash  Hash  // Map for lookup for items
 }
 
+// stores the cache items
 type Hash map[string]*Node
+
+// The hash map provides O(1) lookup time for cache items.
+// key is value of the item and value is the pointer to the corresponding node
 
 func NewCache() Cache {
 	return Cache{Queue: NewQueue(), Hash: Hash{}}
@@ -50,11 +59,16 @@ func (c *Cache) Check(str string) {
 	} else {
 		node = &Node{Value: str}
 	}
+
+	//If the item already exists in the cache(Hash),
+	// it is moved to the front of the queue.
+	// If the item does not exist, it is added to the front of the queue.
 	c.Add(node)
 	c.Hash[str] = node
 }
 
 func (c *Cache) Remove(n *Node) *Node {
+	// The item is removed from the queue by updating the pointers of its neighboring nodes.
 	fmt.Printf("The value removed is %s\n", n.Value)
 	left := n.Left
 	right := n.Right
@@ -64,7 +78,8 @@ func (c *Cache) Remove(n *Node) *Node {
 
 	c.Queue.Length -= 1
 
-	delete(c.Hash, n.Value)
+	delete(c.Hash, n.Value) // The item is also removed from the Hash map.
+
 	return n
 }
 
@@ -73,14 +88,14 @@ func (c *Cache) Add(n *Node) *Node {
 
 	tmp := c.Queue.Head.Right
 
-	c.Queue.Head.Right = n //new item is added at head
+	c.Queue.Head.Right = n // new item is added at head
 	n.Left = c.Queue.Head
 	n.Right = tmp
 	tmp.Left = n
 
 	c.Queue.Length++
 
-	//if size is full remove the last element to accomodate the incoming one
+	// If the queue exceeds its capacity (SIZE), the least recently used item (at the tail of the queue) is removed.
 	if c.Queue.Length > SIZE {
 		c.Remove(c.Queue.Tail.Left)
 	}
@@ -107,6 +122,8 @@ func (q *Queue) Display() {
 
 func main() {
 	fmt.Println("Starting cache")
+
+	// cache is initialized with empty queue and empty hashmap
 	cache := NewCache()
 
 	scanner := bufio.NewScanner(os.Stdin)
