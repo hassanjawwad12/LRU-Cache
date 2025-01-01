@@ -27,15 +27,18 @@ type Queue struct {
 // Cache initialization
 // Combines queue and hash to implement LRU cache
 type Cache struct {
-	Queue Queue // Doubly linked list
-	Hash  Hash  // Map for lookup for items
+	Queue     Queue // Doubly linked list
+	Hash      Hash  // Map for lookup for items
+	Hits      int
+	Miss      int
+	Evictions int
 }
 
 // stores the cache items
 type Hash map[string]*Node
 
 // The hash map provides O(1) lookup time for cache items.
-// key is value of the item and value is the pointer to the corresponding node
+// Key is value of the item and value is the pointer to the corresponding node
 
 func NewCache() Cache {
 	return Cache{Queue: NewQueue(), Hash: Hash{}}
@@ -56,12 +59,14 @@ func (c *Cache) Check(str string) {
 
 	if val, ok := c.Hash[str]; ok {
 		node = c.Remove(val)
+		c.Hits++
 	} else {
 		node = &Node{Value: str}
+		c.Miss++
 	}
 
 	//If the item already exists in the cache(Hash),
-	// it is moved to the front of the queue.
+	// It is moved to the front of the queue.
 	// If the item does not exist, it is added to the front of the queue.
 	c.Add(node)
 	c.Hash[str] = node
@@ -75,13 +80,14 @@ func (c *Cache) Remove(n *Node) *Node {
 	left := n.Left
 	right := n.Right
 
-	//bypassed the node to be removed
+	//Bypassed the node to be removed
 	left.Right = right
 	right.Left = left
 
 	c.Queue.Length -= 1
 
 	delete(c.Hash, n.Value) // The item is also removed from the Hash map.
+	c.Evictions++
 
 	return n
 }
@@ -123,19 +129,39 @@ func (q *Queue) Display() {
 	fmt.Println("]")
 }
 
+func (c *Cache) Clear() {
+	c.Queue = NewQueue()
+	c.Hash = Hash{}
+	fmt.Println("Cache cleared.")
+}
+
+// Stats displays usage statistics for the cache
+func (c *Cache) Stats() {
+	fmt.Printf("Cache Stats - Hits: %d, Misses: %d, Evictions: %d\n", c.Hits, c.Miss, c.Evictions)
+}
 func main() {
 	fmt.Println("Starting cache")
 
-	// cache is initialized with empty queue and empty hashmap
+	// Cache is initialized with empty queue and empty hashmap
 	cache := NewCache()
 
 	scanner := bufio.NewScanner(os.Stdin)
-	fmt.Println("Enter strings (type 'exit' to stop):")
+	fmt.Println("Commands:")
+	fmt.Println("  add <value>   - Add a value to the cache")
+	fmt.Println("  stats         - Show cache statistics")
+	fmt.Println("  clear         - Clear the cache")
+	fmt.Println("  exit          - Exit the program")
 
 	for scanner.Scan() {
 		input := strings.TrimSpace(scanner.Text())
 		if strings.ToLower(input) == "exit" {
 			break
+		}
+		if strings.ToLower(input) == "stats" {
+			cache.Stats()
+		}
+		if strings.ToLower(input) == "clear" {
+			cache.Clear()
 		}
 		// Process the input
 		cache.Check(input) // Check if the value already exists in the queue or not
